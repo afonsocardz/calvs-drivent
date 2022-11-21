@@ -19,7 +19,19 @@ export type AddressEnrollment = {
   cidade: string,
   uf: string,
   error?: string
+}
 
+export type EnrollmentResult = {
+  id: number;
+  name: string;
+  cpf: string;
+  birthday: Date;
+  phone: string;
+  error?: string;
+}
+
+export type PaymentByTicketId = {
+  ticketId: number;
 }
 
 export type RequestError = {

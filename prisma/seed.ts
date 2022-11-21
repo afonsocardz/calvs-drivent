@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   let event = await prisma.event.findFirst();
+  let ticketType = await prisma.ticketType.findFirst();
   if (!event) {
     event = await prisma.event.create({
       data: {
@@ -15,7 +16,36 @@ async function main() {
       },
     });
   }
-
+  if (!ticketType) {
+    const ticketTypes = await prisma.ticketType.createMany({
+      data: [
+        {
+          name: "Online",
+          price: 1111,
+          isRemote: true,
+          includesHotel: false,
+          updatedAt: dayjs().toDate(),
+        },
+        {
+          name: "Com Hotel",
+          price: 1111,
+          isRemote: false,
+          includesHotel: false,
+          updatedAt: dayjs().toDate(),
+        },
+        {
+          name: "Sem Hotel",
+          price: 1111,
+          isRemote: false,
+          includesHotel: true,
+          updatedAt: dayjs().toDate(),
+        },
+      ]
+    })
+    console.log(ticketTypes);
+  }
+  
+  
   console.log({ event });
 }
 

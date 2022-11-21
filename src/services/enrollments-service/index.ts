@@ -1,5 +1,5 @@
 import { request } from "@/utils/request";
-import { AddressEnrollment } from "@/protocols";
+import { AddressEnrollment, EnrollmentResult } from "@/protocols";
 import { getAddress } from "@/utils/cep-service";
 import { notFoundError } from "@/errors";
 import addressRepository, { CreateAddressParams } from "@/repositories/address-repository";
@@ -33,7 +33,7 @@ async function getAddressFromCEP(cep: string): Promise<AddressEnrollment> {
   return address;
 }
 
-async function getOneWithAddressByUserId(userId: number): Promise<GetOneWithAddressByUserIdResult> {
+async function getOneWithAddressByUserId(userId: number): Promise<EnrollmentResult> {
   const enrollmentWithAddress = await enrollmentRepository.findWithAddressByUserId(userId);
 
   if (!enrollmentWithAddress) throw notFoundError();
@@ -46,8 +46,6 @@ async function getOneWithAddressByUserId(userId: number): Promise<GetOneWithAddr
     ...(!!address && { address }),
   };
 }
-
-type GetOneWithAddressByUserIdResult = Omit<Enrollment, "userId" | "createdAt" | "updatedAt">;
 
 function getFirstAddress(firstAddress: Address): GetAddressResult {
   if (!firstAddress) return null;

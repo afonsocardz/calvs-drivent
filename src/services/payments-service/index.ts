@@ -1,0 +1,65 @@
+import dayjs from "dayjs";
+import { CreatePayment, CreatePaymentParams, paymentRepository } from "@/repositories/payments-repository";
+import { unauthorizedError } from "@/errors";
+import enrollmentRepository from "@/repositories/enrollment-repository";
+import { Ticket } from "@prisma/client";
+import { ticketService } from "../tickets-service";
+
+async function create(params: CreatePaymentParams, userId: number) {
+  const { cardData: { issuer, number, expirationDate } } = params;
+
+  isCardExpired(expirationDate.toString());
+
+  const { TicketType: { price } } = await ticketService.getTicketById(params.ticketId);
+  await isTicketOwner(userId);
+
+  const cardLastDigits = getLastDigits(number);
+
+  const paymentData: CreatePayment = {
+    ticketId: params.ticketId,
+    value: price,
+    cardIssuer: issuer,
+    cardLastDigits,
+  };
+
+  await ticketService.update(params.ticketId);
+
+  return await paymentRepository.create(paymentData);
+}
+
+async function isTicketOwner(userId: number) {
+  const enrollment = await enrollmentRepository.findWithTicketByUserId(userId);
+  const [ticket]: Ticket[] = enrollment.Ticket;
+  if (!ticket) {
+    console.log("oi");
+    throw unauthorizedError();
+  }
+}
+
+async function getPaidTicketById(ticketId: number, userId: number) {
+  const payment = await paymentRepository.getPaidTicketById(ticketId);
+
+  await ticketService.getTicketById(ticketId);
+  await isTicketOwner(userId);
+
+  return payment;
+}
+
+export function isCardExpired(expirationDate: string) {
+  const cardDate = dayjs(`31/${expirationDate}`);
+  const isExpired = dayjs().isAfter(cardDate);
+  if (isExpired) {
+    throw { type: "expired", message: "Card is expired" };
+  }
+}
+
+function getLastDigits(number: number) {
+  const lastDigits: string = number.toString();
+  const DIGITS = 4;
+  return lastDigits.slice(lastDigits.length - DIGITS, lastDigits.length);
+}
+
+export const paymentService = {
+  getPaidTicketById,
+  create,
+};
