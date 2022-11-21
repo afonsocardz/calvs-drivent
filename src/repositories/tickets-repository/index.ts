@@ -9,6 +9,7 @@ async function getTicketById(ticketId: number) {
     },
     include: {
       TicketType: true,
+      Enrollment: true,
     }
   });
 }

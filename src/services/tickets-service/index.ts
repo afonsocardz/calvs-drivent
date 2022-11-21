@@ -30,8 +30,10 @@ async function getTicket(userId: number) {
   }
 
   const { Ticket: [ticket] } = result;
+  const ticketResult = await getTicketById(ticket.id);
+  delete ticketResult.Enrollment;
 
-  return await getTicketById(ticket.id);
+  return ticketResult;
 }
 
 async function getTicketById(ticketId: number) {
