@@ -1,8 +1,6 @@
 import dayjs from "dayjs";
 import { CreatePayment, CreatePaymentParams, paymentRepository } from "@/repositories/payments-repository";
 import { unauthorizedError } from "@/errors";
-import enrollmentRepository from "@/repositories/enrollment-repository";
-import { Ticket } from "@prisma/client";
 import { ticketService } from "../tickets-service";
 import { ticketRepository } from "@/repositories/tickets-repository";
 
