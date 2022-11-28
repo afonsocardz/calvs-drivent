@@ -150,7 +150,21 @@ describe("/GET Hotels/:hotelId", () => {
       const result = await server.get(`/hotels/${hotel.id}`).set("Authorization", `Bearer ${token}`);
 
       expect(result.status).toBe(200);
-      expect(result.body).toBeInstanceOf(Array);
+      expect(result.body).toEqual(
+        expect.objectContaining({
+          id: hotel.id,
+          name: hotel.name,
+          image: hotel.image,
+          Rooms: expect.arrayContaining([
+            expect.objectContaining({
+              id: expect.any(Number),
+              name: expect.any(String),
+              capacity: expect.any(Number),
+              hotelId: expect.any(Number),
+            })
+          ]),
+        })
+      );
     });
   });
 });

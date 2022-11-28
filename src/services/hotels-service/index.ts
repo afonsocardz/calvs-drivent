@@ -13,15 +13,15 @@ async function getHotels(userId: number) {
 }
 
 async function getRoomsByHotelId(hotelId: number, userId: number) {
-  const hotels = await hotelRepository.getRoomsByHotelId(hotelId);
+  const hotel = await hotelRepository.getRoomsByHotelId(hotelId);
 
-  if (!hotels) {
+  if (!hotel) {
     throw notFoundError();
   }
 
   await validateTicketWithHotel(userId);
 
-  return hotels.Rooms;
+  return hotel;
 }
 
 async function validateTicketWithHotel(userId: number) {
