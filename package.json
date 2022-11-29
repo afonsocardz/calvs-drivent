@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "lint:staged": "lint-staged",
     "test": "npx jest --passWithNoTests --runInBand",
+    "test:coverage": "npx jest --passWithNoTests --runInBand --coverage --collectCoverageFrom='./src/**'",
     "test:migration:run": "npm run test:load-envs prisma migrate deploy",
     "test:migration:generate": "npm run test:load-envs prisma migrate dev",
     "test:watch": "jest --watch --passWithNoTests --runInBand",
