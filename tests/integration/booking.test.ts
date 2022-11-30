@@ -166,3 +166,46 @@ describe("PUT /booking", () => {
   });
 });
 
+describe("GET /booking", () => {
+  describe("when token is valid", () => {
+    it.todo("should response with status 404 when user has no booking", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const hotel = await createHotel();
+      const room = await createRoomByHotelId(hotel.id);
+      await fillRoom(room.capacity, room.id);
+
+      const response = await server.get("/booking").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
+    it.todo("should response with status 200 bookingId and room data", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const hotel = await createHotel();
+      const room = await createRoomByHotelId(hotel.id);
+      const booking = await createBooking(user.id, room.id);
+
+      const response = await server.get("/booking").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: booking.id,
+          Room: expect.objectContaining({
+            id: room.id,
+            name: room.name,
+            capacity: room.capacity,
+            hotelId: room.hotelId,
+          })
+        })
+      );
+    });
+  });
+});
