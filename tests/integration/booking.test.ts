@@ -172,6 +172,20 @@ describe("PUT /booking/:bookingId", () => {
       const response = await server.put(`/booking/${booking.id}`).set("Authorization", `Bearer ${token}`).send({ roomId: room.id });
       expect(response.status).toBe(httpStatus.FORBIDDEN);
     });
+    it("should response with status 403 when user is not the booking owner", async () => {
+      const user = await createUser();
+      const otherUser = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const hotel = await createHotel();
+      const room = await createRoomByHotelId(hotel.id);
+      const booking = await createBooking(otherUser.id, room.id);
+
+      const response = await server.put(`/booking/${booking.id}`).set("Authorization", `Bearer ${token}`).send({ roomId: room.id });
+      expect(response.status).toBe(httpStatus.FORBIDDEN);
+    });
     it("should response with status 404 when room not exists", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
