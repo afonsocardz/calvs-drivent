@@ -1,11 +1,12 @@
 import app, { init } from "@/app";
 import faker from "@faker-js/faker";
 import jwt from "jsonwebtoken";
-import { TicketStatus } from "@prisma/client";
+import { Booking, TicketStatus } from "@prisma/client";
 import httpStatus from "http-status";
 import supertest from "supertest";
 import { createBooking, createEnrollmentWithAddress, createHotel, createRoomByHotelId, createTicket, createTicketTypeWithHotel, createUser, fillRoom, findBookingByUserId } from "../factories";
 import { generateValidToken, cleanDb } from "../helpers";
+import { object } from "joi";
 
 const server = supertest(app);
 
@@ -108,12 +109,19 @@ describe("POST /booking", () => {
 
       const response = await server.post("/booking").set("Authorization", `Bearer ${token}`).send({ roomId: room.id });
 
-      const booking = await findBookingByUserId(user.id);
+      const booking: Booking = await findBookingByUserId(user.id);
 
       expect(response.status).toBe(httpStatus.OK);
       expect(response.body).toEqual(
         expect.objectContaining({
           bookingId: booking.id
+        })
+      );
+      expect(booking).toEqual(
+        expect.objectContaining({
+          id: response.body.bookingId,
+          roomId: room.id,
+          userId: user.id
         })
       );
     });
@@ -238,7 +246,22 @@ describe("PUT /booking/:bookingId", () => {
       const booking = await createBooking(user.id, room.id);
 
       const response = await server.put(`/booking/${booking.id}`).send({ roomId: otherRoom.id }).set("Authorization", `Bearer ${token}`);
+
+      const updatedBooking = await findBookingByUserId(user.id);
+
       expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          bookingId: booking.id
+        })
+      );
+      expect(updatedBooking).toEqual(
+        expect.objectContaining({
+          id: booking.id,
+          roomId: otherRoom.id,
+          userId: user.id
+        })
+      );
     });
   });
 });
