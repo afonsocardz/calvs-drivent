@@ -24,7 +24,7 @@ async function getRoomsByHotelId(hotelId: number, userId: number) {
   return hotel;
 }
 
-async function validateTicketWithHotel(userId: number) {
+export async function validateTicketWithHotel(userId: number) {
   const ticket = await ticketService.getTicket(userId);
   const ticketType = ticket.TicketType;
   if (ticketType.isRemote === true || ticketType.includesHotel === false || ticket.status != TicketStatus.PAID) {
@@ -33,6 +33,7 @@ async function validateTicketWithHotel(userId: number) {
 }
 
 export const hotelService = {
+  validateTicketWithHotel,
   getHotels,
   getRoomsByHotelId,
 };
